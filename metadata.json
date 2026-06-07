@@ -1,0 +1,53 @@
+{
+  "features": [
+    "ambient",
+    "coolant",
+    "u_d",
+    "u_q",
+    "motor_speed",
+    "torque",
+    "i_d",
+    "i_q",
+    "electrical_power",
+    "i_magnitude",
+    "u_magnitude",
+    "temp_diff_ambient_coolant",
+    "heat_load",
+    "i_mag_roll_mean_10",
+    "i_mag_roll_mean_30",
+    "power_roll_mean_10",
+    "power_roll_mean_30"
+  ],
+  "primary_target": "pm",
+  "target_cols": [
+    "pm",
+    "stator_yoke",
+    "stator_tooth",
+    "stator_winding"
+  ],
+  "best_model": "GradientBoosting",
+  "overheat_thresholds": {
+    "pm": 100,
+    "stator_yoke": 120,
+    "stator_tooth": 120,
+    "stator_winding": 120
+  },
+  "evaluation": {
+    "Ridge": {
+      "mae": 10.009309434783049,
+      "rmse": 12.580625744337603,
+      "r2": 0.024154958663421322
+    },
+    "RandomForest": {
+      "mae": 9.850493902759453,
+      "rmse": 12.445308301813533,
+      "r2": 0.045034475787782524
+    },
+    "GradientBoosting": {
+      "mae": 8.492744348400267,
+      "rmse": 10.836726432162395,
+      "r2": 0.2759432714192013
+    }
+  },
+  "feature_count": 17
+}
