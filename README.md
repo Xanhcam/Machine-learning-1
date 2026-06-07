@@ -1,71 +1,125 @@
-# Machine-learning-1
-Motor Temperature Prediction (Predictive Maintenance)
-Dự án này ứng dụng Machine Learning (XGBoost) để xây dựng hệ thống "Cảm biến ảo" (Virtual Sensing), dự báo chính xác nhiệt độ các thành phần bên trong motor (Nam châm, Stator) dựa trên các thông số vận hành thực tế. Hệ thống giúp chuyển đổi từ bảo trì định kỳ sang bảo trì dự báo, ngăn chặn rủi ro quá nhiệt và hỏng hóc thiết bị trong hệ thống robot/công nghiệp.
+# 🔥 Motor Temperature Prediction — Project B5
 
-🚀 Tính năng nổi bật
-Dự báo thời gian thực: Độ trễ (latency) chỉ dưới 50ms, đáp ứng yêu cầu giám sát tức thời.
+Dự báo nhiệt độ động cơ PMSM để tránh quá nhiệt, sử dụng **XGBoost Regressor** trên dataset thực đo từ Kaggle.
 
-Cảm biến ảo (Virtual Sensing): Ước tính nhiệt độ nội tại mà không cần gắn cảm biến vật lý đắt tiền trên Rotor đang quay.
+---
 
-Trực quan hóa: Dashboard Web App cho phép kỹ sư theo dõi thông số và trạng thái cảnh báo (An toàn/Cảnh báo/Nguy hiểm).
+## 📌 Mô tả
 
-Học tập từ đặc tính nhiệt: Tích hợp kỹ thuật Rolling Mean để mô hình hiểu rõ đặc tính trễ nhiệt (thermal inertia) của động cơ.
+Mô hình học máy dự đoán nhiệt độ nam châm vĩnh cửu (`pm`) của động cơ PMSM dựa trên các tín hiệu điện (dòng điện, điện áp, tốc độ, mô-men xoắn). Kết quả được hiển thị qua **web app Flask** với cảnh báo real-time khi nhiệt độ tiếp cận ngưỡng nguy hiểm.
 
-🛠 Công nghệ sử dụng
-Ngôn ngữ: Python 3.x
+| Chỉ số | Giá trị |
+|--------|---------|
+| Model  | XGBoost Regressor |
+| MAE (Test) | 8.83°C |
+| Ngưỡng cảnh báo `pm` | ≥ 85°C ⚠️ / ≥ 100°C 🔴 |
+| Số features | 17 (8 gốc + 9 engineered) |
 
-Machine Learning: XGBoost, Scikit-learn, Pandas, NumPy
+---
 
-Web Framework: Flask
+## 📁 Cấu trúc project
 
-Dữ liệu: Electric Motor Temperature Dataset (Kaggle)
-📂 Cấu trúc dự án
-Plaintext
-├── models/             # Chứa file model (.joblib) và metadata
-├── static/             # Chứa CSS, JS cho giao diện web
-├── templates/          # HTML templates cho Flask
-├── traindata.py        # Script huấn luyện mô hình & feature engineering
-├── demo.py             # Script chạy Web App dự báo thời gian thực
-├── requirements.txt    # Danh sách thư viện cần cài đặt
+```
+motor-temp-prediction/
+├── traindata.py              # Pipeline huấn luyện mô hình
+├── demo.py                   # Flask web app demo
+├── measures_v2.csv           # Dataset (tải từ Kaggle)
+├── models/
+│   ├── model_xgboost.joblib  # Model XGBoost đã train
+│   ├── scaler.joblib         # StandardScaler đã fit
+│   ├── metadata.json         # Feature list, ngưỡng, kết quả
+│   └── training_results.png  # Biểu đồ kết quả
+├── results.png               # Biểu đồ xuất ra
 └── README.md
-📋 Hướng dẫn cài đặt
-Clone repository này về máy:
+```
 
-Bash
-git clone [link-repo-cua-ban]
-cd motor-temp-prediction
-Cài đặt các thư viện cần thiết:
+---
 
-Bash
-pip install -r requirements.txt
-Chuẩn bị dữ liệu:
+## ⚙️ Cài đặt
 
-Tải file dữ liệu pmsm_temperature_data.csv từ Kaggle.
+**Yêu cầu:** Python 3.8+
 
-Đặt file vào thư mục gốc của project.
-💻 Cách sử dụng
-1. Huấn luyện mô hình (Training)
-Chạy script để huấn luyện mô hình XGBoost và lưu artifacts:
+```bash
+pip install pandas numpy scikit-learn xgboost matplotlib seaborn joblib flask
+```
 
-Bash
+---
+
+## 🚀 Hướng dẫn chạy
+
+### Bước 1 — Tải dataset
+
+Tải file `measures_v2.csv` từ Kaggle và đặt vào thư mục gốc:
+
+👉 https://www.kaggle.com/datasets/wkirgsn/electric-motor-temperature
+
+### Bước 2 — Huấn luyện mô hình
+
+```bash
 python traindata.py
-Script sẽ tự động tiền xử lý dữ liệu, train model và lưu kết quả vào thư mục ./models/.
-2. Chạy Demo Web App
-Khởi động giao diện giám sát thời gian thực:
+```
 
-Bash
+Script sẽ tự động:
+- Load và khám phá dữ liệu
+- Feature engineering (17 features)
+- Train 3 mô hình: Ridge, Random Forest, XGBoost
+- Đánh giá và chọn model tốt nhất
+- Lưu model vào thư mục `./models/`
+- Vẽ biểu đồ kết quả
+
+### Bước 3 — Chạy demo
+
+```bash
 python demo.py
-Sau đó, truy cập vào địa chỉ: http://127.0.0.1:5000 trên trình duyệt để trải nghiệm.
-📊 Kết quả đạt được
-Độ chính xác: MAE ≈ 8.83°C, R² ≈ 0.89.
+```
 
-Khả năng phản hồi: Phản ứng tức thì với các thay đổi của dòng, áp và tốc độ.
+Mở trình duyệt tại: **http://127.0.0.1:5000**
 
-Trực quan: Hiển thị cảnh báo màu dựa trên ngưỡng an toàn (Nam châm vĩnh cửu: 100°C, Stator: 120°C).
+---
 
-🔮 Hướng phát triển
-Edge AI: Tối ưu hóa mô hình sang TensorFlow Lite để chạy trên các vi điều khiển (MCU) nhúng.
+## 🖥️ Giao diện demo
 
-Online Learning: Nghiên cứu cơ chế cập nhật mô hình theo sự lão hóa của động cơ.
+Web app cho phép:
+- Điều chỉnh thông số motor bằng thanh kéo (tốc độ, mô-men, dòng điện, điện áp, nhiệt độ)
+- Chọn 4 kịch bản nhanh: **Không tải / Bình thường / Tải nặng / Quá nhiệt**
+- Xem dự báo nhiệt độ 4 thành phần: PM, Stator yoke, Stator tooth, Stator winding
+- Cảnh báo màu sắc real-time + biểu đồ lịch sử nhiệt độ
 
-Chống nhiễu: Áp dụng các bộ lọc số (digital filters) để làm sạch tín hiệu cảm biến trong môi trường công nghiệp có nhiễu điện từ cao.
+---
+
+## 📊 Kết quả
+
+![Training Results](results.png)
+
+- **Predicted vs Actual**: điểm dự đoán bám sát đường lý tưởng trong vùng 60–80°C
+- **Time Series**: mô hình theo dõi đúng xu hướng nhiệt độ
+- **Residuals**: phân phối chuẩn quanh 0, MAE = 8.83°C
+
+---
+
+## 🛠️ Chi tiết kỹ thuật
+
+### Features
+
+| Nhóm | Feature |
+|------|---------|
+| Gốc (8) | `ambient`, `coolant`, `u_d`, `u_q`, `motor_speed`, `torque`, `i_d`, `i_q` |
+| Engineered (9) | `electrical_power`, `i_magnitude`, `u_magnitude`, `temp_diff_ambient_coolant`, `heat_load`, `i_mag_roll_mean_10/30`, `power_roll_mean_10/30` |
+
+### Ngưỡng cảnh báo
+
+| Thành phần | Cảnh báo | Nguy hiểm |
+|------------|----------|-----------|
+| PM (nam châm) | ≥ 85°C | ≥ 100°C |
+| Stator yoke | ≥ 102°C | ≥ 120°C |
+| Stator tooth | ≥ 102°C | ≥ 120°C |
+| Stator winding | ≥ 102°C | ≥ 120°C |
+
+---
+
+## 📚 Dataset
+
+- **Nguồn**: Kaggle — [Electric Motor Temperature](https://www.kaggle.com/datasets/wkirgsn/electric-motor-temperature)
+- **Tác giả**: wkirgsn
+- **Kích thước**: ~998.000 mẫu, tần số 2 Hz
+- **Split**: 80% train / 20% test (giữ thứ tự thời gian)
